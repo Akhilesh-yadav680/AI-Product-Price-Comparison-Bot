@@ -2,6 +2,7 @@
 
 This project is an AI-powered Telegram bot that helps users compare product prices across multiple Indian e-commerce platforms like Amazon, Flipkart, and Zepto. Built with n8n, LangChain, and GPT-4o, the workflow receives product queries via Telegram, scrapes product details from various links, and replies with a neatly formatted, clickable price comparison directly in the chat.
 
+ ![AI-Product-Price-Comparison-Bot](sample.png)
 ## Features
 
 - Accepts product search requests on Telegram.
