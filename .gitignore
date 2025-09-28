@@ -1,0 +1,24 @@
+# Node modules
+node_modules/
+
+# n8n specific
+*.n8n-log
+.env
+.env.local
+.env.*
+*.sqlite
+backups/
+n8n_data/
+n8n_files/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# IDE files
+.vscode/
+.idea/

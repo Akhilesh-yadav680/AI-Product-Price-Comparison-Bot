@@ -1,0 +1,162 @@
+{
+  "name": "My workflow 5",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        -16
+      ],
+      "id": "7a91896f-5ce5-4199-9a6b-a069ca00d8c6",
+      "name": "Telegram Trigger",
+      "webhookId": "8a4369e8-e98a-4a73-ae43-9ebb0be7632a",
+      "credentials": {
+        "telegramApi": {
+          "id": "NItTPAlXKRH91WJT",
+          "name": "Invoice"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a product price comparison assistant.\n\nTask:\n1. Take a product name given by the user: {{ $json.message.text }}.\n2. Use the list of product hyperlinks passed in the parameter named \"links\". Each link points to a product page for a retailer.\n3. For each link/site, extract:\n   - Site name\n   - Exact product name\n   - Price in INR\n   - Availability (In Stock / Out of Stock)\n   - Direct product link\n\n4. Output a neatly structured, human-readable price comparison in a Telegram-friendly format using Markdown clickable links.  \nDo NOT output JSON or extra explanations.\n\nExample output format:\n{\n  \"links\": [\n    { \"site\": \"Amazon\", \"url\": \"https://www.amazon.in/Dabur-Honey-500g-Jar/dp/B00GWNXCIA\" },\n    { \"site\": \"Flipkart\", \"url\": \"https://www.flipkart.com/dabur-honey-500g/p/itmfbdda52ca9d647\" },\n    { \"site\": \"Zepto\", \"url\": \"https://www.zeptonow.com/pn/dabur-100-pure-honey/pvid/098a5b1d-4740-49e7-8eb2-81f84c23afbf\" }\n  ]\n}\n\n\nProduct: Dabur Honey 500gm\n\n1. Amazon  \n   • Product: Dabur Honey 500g Jar  \n   • Price: ₹305  \n   • Availability: In Stock  \n   • Link: [Amazon Link](https://www.amazon.in/Dabur-Honey-500g-Jar/dp/B00GWNXCIA)  \n\n2. Flipkart  \n   • Product: Dabur Honey 500g  \n   • Price: ₹320  \n   • Availability: In Stock  \n   • Link: [Flipkart Link](https://www.flipkart.com/dabur-honey-500g/p/itmfbdda52ca9d647)  \n\n3. Zepto  \n   • Product: Dabur Honey, Pure – 500g  \n   • Price: ₹299  \n   • Availability: In Stock  \n   • Link: [Zepto Link](https://www.zeptonow.com/pn/dabur-100-pure-honey/pvid/098a5b1d-4740-49e7-8eb2-81f84c23afbf)  \n\nLowest Price → **Zepto – ₹299**\n\nNotes:\n- Always highlight the lowest price clearly at the end.\n- If a product is unavailable, mark it as \"Out of Stock\".\n- Use the \"links\" parameter provided to find the exact product and its details.\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        -16
+      ],
+      "id": "e26d4ab7-e5f5-4c71-97e0-06dd0ea7f32a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.from.id }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        360,
+        208
+      ],
+      "id": "3a719c97-3126-4dc9-9833-8e5782e43646",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        232,
+        208
+      ],
+      "id": "425ddf93-0dd9-4788-974e-1867c56ea79e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "pNowJHkNLIyTSaui",
+          "name": "new"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        576,
+        -16
+      ],
+      "id": "1b069e87-bde1-4809-b659-7e4058779d76",
+      "name": "Send a text message",
+      "webhookId": "b9a17998-a970-4a8b-b643-41bf4b8b002a",
+      "credentials": {
+        "telegramApi": {
+          "id": "NItTPAlXKRH91WJT",
+          "name": "Invoice"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "491d3b69-2f15-4f4d-bec1-8a712c694df0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "2143bbab0046a29ff233d0225fd33fbe065863ee6490e9e4402496708a049faa"
+  },
+  "id": "ZQiItajX48YPzP8x",
+  "tags": []
+}
